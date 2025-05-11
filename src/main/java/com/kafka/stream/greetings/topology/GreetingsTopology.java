@@ -1,11 +1,9 @@
 package com.kafka.stream.greetings.topology;
 
 import com.kafka.stream.greetings.domain.Greetings;
-import com.kafka.stream.greetings.serdes.GreetingSerdes;
 import com.kafka.stream.greetings.serdes.SerdesFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -13,7 +11,6 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
 
-import java.util.Arrays;
 
 @Slf4j
 public class GreetingsTopology {
@@ -55,7 +52,7 @@ public class GreetingsTopology {
         modifiedStream.print(Printed.<String, Greetings>toSysOut().withLabel("modifiedStream"));
 
         modifiedStream.to(GREETINGS_UPPERCASE
-                , Produced.with(Serdes.String(), SerdesFactory.GreetingSerdes())
+                , Produced.with(Serdes.String(), SerdesFactory.greetingSerdes())
         );
 
         return streamsBuilder.build();
@@ -70,17 +67,16 @@ public class GreetingsTopology {
 //                , Consumed.with(Serdes.String(), Serdes.String())
         );
 
-        var mergeStream = greetingsStream.merge(spanishStream);
-        return mergeStream;
+        return greetingsStream.merge(spanishStream);
     }
 
     private static KStream<String, Greetings> getCustomStringKStream(StreamsBuilder streamsBuilder) {
         KStream<String, Greetings> greetingsStream = streamsBuilder.stream(GREETINGS
-                , Consumed.with(Serdes.String(), SerdesFactory.GreetingSerdes())
+                , Consumed.with(Serdes.String(), SerdesFactory.greetingSerdesUsingGeneric())
         );
 
         KStream<String, Greetings> spanishStream = streamsBuilder.stream(GREETINGS_SPANISH
-                , Consumed.with(Serdes.String(), SerdesFactory.GreetingSerdes())
+                , Consumed.with(Serdes.String(), SerdesFactory.greetingSerdesUsingGeneric())
         );
 
         return greetingsStream.merge(spanishStream);

@@ -29,9 +29,9 @@ public class GreetingMockDataProducer {
     private static void spanishGreetings(ObjectMapper objectMapper)
     {
         var spanishGreeting = List.of(
-                new Greetings("¡Hola buenos dias!", LocalDateTime.now()),
-                new Greetings("¡Hola buenas tardes!", LocalDateTime.now()),
-                new Greetings("¡Hola, buenas noches!", LocalDateTime.now())
+                new Greetings("¡Hola buenos dias 2!", LocalDateTime.now()),
+                new Greetings("¡Hola buenas tardes 2!", LocalDateTime.now()),
+                new Greetings("¡Hola, buenas noches 2!", LocalDateTime.now())
         );
 
         producerMessage(objectMapper, spanishGreeting, GreetingsTopology.GREETINGS_SPANISH);
@@ -40,9 +40,9 @@ public class GreetingMockDataProducer {
     private static void englishGreetings(ObjectMapper objectMapper)
     {
         var spanishGreeting = List.of(
-                new Greetings("Hello, Good Morning!", LocalDateTime.now()),
-                new Greetings("Hello, Good Evening!", LocalDateTime.now()),
-                new Greetings("Hello, Good Night!", LocalDateTime.now())
+                new Greetings("Hello, Good Morning 2!", LocalDateTime.now()),
+                new Greetings("Hello, Good Evening 2!", LocalDateTime.now()),
+                new Greetings("Hello, Good Night! 2", LocalDateTime.now())
         );
 
         producerMessage(objectMapper, spanishGreeting, GreetingsTopology.GREETINGS);
