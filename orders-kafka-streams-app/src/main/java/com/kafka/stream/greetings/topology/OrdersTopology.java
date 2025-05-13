@@ -2,6 +2,7 @@ package com.kafka.stream.greetings.topology;
 
 import com.kafka.stream.greetings.domain.Order;
 import com.kafka.stream.greetings.domain.OrderType;
+import com.kafka.stream.greetings.domain.Revenue;
 import com.kafka.stream.greetings.serdes.SerdesFactory;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -19,6 +20,7 @@ public class OrdersTopology {
     {
         Predicate<String, Order> generalPredicate = (key, order) -> order.orderType().equals(OrderType.GENERAL);
         Predicate<String, Order> restaurantPredicate = (key, order) -> order.orderType().equals(OrderType.RESTAURANT);
+        ValueMapper<Order, Revenue> revenueValueMapper = (order) -> new Revenue(order.locationId(), order.finalAmount());
 
         StreamsBuilder streamsBuilder = new StreamsBuilder();
 
@@ -33,8 +35,9 @@ public class OrdersTopology {
                             generalOrderStream.print(Printed.<String, Order>toSysOut().withLabel("generalOrderStream"));
 
                             generalOrderStream
+                                    .mapValues((readonlyKey, value) -> revenueValueMapper.apply(value))
                                     .to(GENERAL_ORDERS, Produced.with(Serdes.String(), SerdesFactory
-                                            .orderSerdesUsingGeneric()));
+                                            .revenueSerdesUsingGeneric()));
                         })
                 ).branch(restaurantPredicate,
                         Branched.withConsumer(restaurantOrderStream -> {
@@ -43,8 +46,9 @@ public class OrdersTopology {
                                     .withLabel("restaurantOrderStream"));
 
                             restaurantOrderStream
+                                    .mapValues((readonlyKey, value) -> revenueValueMapper.apply(value))
                                     .to(RESTAURANT_ORDERS, Produced.with(Serdes.String(), SerdesFactory
-                                            .orderSerdesUsingGeneric()));
+                                            .revenueSerdesUsingGeneric()));
                         })
                         );
 
