@@ -23,7 +23,10 @@ public class OrdersKafkaStreamApp {
         properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "orders-app");
         properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        properties.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, "2");
+        int processors = Runtime.getRuntime().availableProcessors();
 
+        log.info("nombre de processeurs: {}", processors);
         createTopic(properties, List.of(OrdersTopology.ORDERS, OrdersTopology.GENERAL_ORDERS, OrdersTopology.RESTAURANT_ORDERS));
 
         var greetingsTopology = OrdersTopology.buildTopology();

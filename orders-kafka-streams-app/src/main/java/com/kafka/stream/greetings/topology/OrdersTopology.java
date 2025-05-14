@@ -11,16 +11,18 @@ import org.apache.kafka.streams.kstream.*;
 
 public class OrdersTopology {
 
-    public final static String ORDERS = "orders";
-    public final static String STORE = "stores";
-    public final static String GENERAL_ORDERS = "general_orders";
-    public final static String RESTAURANT_ORDERS = "restaurant_orders";
+    private OrdersTopology(){}
+
+    public static final  String ORDERS = "orders";
+    public static final String STORE = "stores";
+    public static final String GENERAL_ORDERS = "general_orders";
+    public static final String RESTAURANT_ORDERS = "restaurant_orders";
 
     public static Topology buildTopology()
     {
         Predicate<String, Order> generalPredicate = (key, order) -> order.orderType().equals(OrderType.GENERAL);
         Predicate<String, Order> restaurantPredicate = (key, order) -> order.orderType().equals(OrderType.RESTAURANT);
-        ValueMapper<Order, Revenue> revenueValueMapper = (order) -> new Revenue(order.locationId(), order.finalAmount());
+        ValueMapper<Order, Revenue> revenueValueMapper = order -> new Revenue(order.locationId(), order.finalAmount());
 
         StreamsBuilder streamsBuilder = new StreamsBuilder();
 
