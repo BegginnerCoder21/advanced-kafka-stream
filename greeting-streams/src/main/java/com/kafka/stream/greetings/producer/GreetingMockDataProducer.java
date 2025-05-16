@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 public class GreetingMockDataProducer {
@@ -21,7 +22,7 @@ public class GreetingMockDataProducer {
                 .registerModule(new JavaTimeModule())
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-        spanishGreetings(objectMapper);
+        //spanishGreetings(objectMapper);
         englishGreetings(objectMapper);
 
     }
@@ -40,7 +41,8 @@ public class GreetingMockDataProducer {
     private static void englishGreetings(ObjectMapper objectMapper)
     {
         var spanishGreeting = List.of(
-                new Greetings("Hello, Good Morning 3!", LocalDateTime.now()),
+                new Greetings("Hello, Good Morning!", LocalDateTime.now()),
+                new Greetings("Transient Error", LocalDateTime.now()),
                 new Greetings("Hello, Good Evening 3!", LocalDateTime.now()),
                 new Greetings("Hello, Good Night! 3", LocalDateTime.now())
         );
@@ -52,7 +54,8 @@ public class GreetingMockDataProducer {
         greetingList.forEach((greetings -> {
             try {
                 var greetingJson = objectMapper.writeValueAsString(greetings);
-                var recordMetaData = ProducerUtil.publishMessageSync(topicName, null, greetingJson);
+                UUID uuid = UUID.randomUUID();
+                var recordMetaData = ProducerUtil.publishMessageSync(topicName, uuid.toString(), greetingJson);
             } catch (JsonProcessingException e) {
                 log.error("JsonProcessingException Error, Published the publishMessageSync alphabet message : {}", e.getMessage(), e);
                 throw new RuntimeException(e);
