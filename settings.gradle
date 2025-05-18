@@ -3,4 +3,5 @@ include 'greeting-streams'
 include 'greeting-streams:orders-kafka-streams-app'
 findProject(':greeting-streams:orders-kafka-streams-app')?.name = 'orders-kafka-streams-app'
 include 'orders-kafka-streams-app'
+include 'advanced-streams'
 
