@@ -18,7 +18,8 @@ public class AggregateOperatorTopology {
 
         inputStream.print(Printed.<String, String>toSysOut().withLabel(AGGREGATE));
 
-        KGroupedStream<String, String> stringStringKGroupedStream = inputStream.groupByKey(Grouped.with(Serdes.String(), Serdes.String()));
+//        KGroupedStream<String, String> stringStringKGroupedStream = inputStream.groupByKey(Grouped.with(Serdes.String(), Serdes.String()));
+        KGroupedStream<String, String> stringStringKGroupedStream = inputStream.groupBy(((key, value) -> value), Grouped.with(Serdes.String(), Serdes.String()));
 
         exploreCount(stringStringKGroupedStream);
 
