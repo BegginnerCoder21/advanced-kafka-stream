@@ -54,7 +54,7 @@ public class GreetingsStreamApp {
         }
     }
 
-    private static void createTopic(Properties config, List<String> topicNames) {
+    public static void createTopic(Properties config, List<String> topicNames) {
         try (AdminClient admin = AdminClient.create(config)) {
             int partitions = 2;
             short replication = 1;
