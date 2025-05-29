@@ -18,7 +18,7 @@ public class ExploreKTableTopology {
         KTable<String, String> wordsTable = streamsBuilder
                 .table(WORDS, Consumed.with(Serdes.String(), Serdes.String()),
                 Materialized.as("words-store"));
-        ;
+
         wordsTable.filter((key, value) -> value.length() > 2)
                 .toStream()
                 .print(Printed.<String, String>toSysOut().withLabel("words-ktable"));

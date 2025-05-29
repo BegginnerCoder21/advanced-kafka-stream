@@ -2,6 +2,7 @@ package com.kafka.stream.greetings.serdes;
 
 import com.kafka.stream.greetings.domain.Order;
 import com.kafka.stream.greetings.domain.Revenue;
+import com.kafka.stream.greetings.domain.TotalRevenue;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 
@@ -18,6 +19,14 @@ public class SerdesFactory {
     public static Serde<Revenue> revenueSerdesUsingGeneric() {
         JsonSerializer<Revenue> jsonSerializer = new JsonSerializer<>();
         JsonDeserializer<Revenue> jsonDeserializer = new JsonDeserializer<>(Revenue.class);
+
+        return Serdes.serdeFrom(jsonSerializer, jsonDeserializer);
+    }
+
+    public static Serde<TotalRevenue> totalRevenueSerdes() {
+
+        JsonSerializer<TotalRevenue> jsonSerializer = new JsonSerializer<>();
+        JsonDeserializer<TotalRevenue> jsonDeserializer = new JsonDeserializer<>(TotalRevenue.class);
 
         return Serdes.serdeFrom(jsonSerializer, jsonDeserializer);
     }
