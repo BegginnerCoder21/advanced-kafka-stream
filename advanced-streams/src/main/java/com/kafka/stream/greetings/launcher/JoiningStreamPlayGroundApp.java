@@ -12,7 +12,6 @@ import org.apache.kafka.streams.StreamsConfig;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static com.kafka.stream.greetings.topology.ExploreJoinsOperatorsTopology.ALPHABETS;
 import static com.kafka.stream.greetings.topology.ExploreJoinsOperatorsTopology.ALPHABETS_ABBREVATIONS;

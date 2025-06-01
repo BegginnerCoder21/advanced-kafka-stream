@@ -1,11 +1,13 @@
 package com.kafka.stream.greetings.producer;
 
+import com.kafka.stream.greetings.utils.ProducerUtil;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 import static com.kafka.stream.greetings.topology.ExploreJoinsOperatorsTopology.ALPHABETS;
 import static com.kafka.stream.greetings.topology.ExploreJoinsOperatorsTopology.ALPHABETS_ABBREVATIONS;
 import static com.kafka.stream.greetings.utils.ProducerUtil.publishMessageSync;
+import static com.kafka.stream.greetings.utils.ProducerUtil.publishMessageSyncWithDelay;
 
 @Slf4j
 public class JoinsMockDataProducer {
@@ -22,7 +24,11 @@ public class JoinsMockDataProducer {
                 "A", "A is the First letter in English Alphabets.",
                 "B", "B is the Second letter in English Alphabets."
         );
-        //publishMessages(alphabetMap, ALPHABETS);
+        publishMessages(alphabetMap, ALPHABETS);
+
+        //-4 & 4 will trigger the join
+        //-6 -5 & 5, 6 wont trigger the join
+        //publishMessagesWithDelay(alphabetMap, ALPHABETS, 5);
 
         var alphabetAbbrevationMap = Map.of(
                 "A", "Apple",
@@ -39,6 +45,14 @@ public class JoinsMockDataProducer {
         );
         // publishMessages(alphabetAbbrevationMap, ALPHABETS_ABBREVATIONS);
 
+    }
+
+    private static void publishMessagesWithDelay(Map<String, String> alphabetMap, String topic, int delaySeconds) {
+        alphabetMap
+                .forEach((key, value) -> {
+                    var recordMetaData = publishMessageSyncWithDelay(topic, key, value, delaySeconds);
+                    log.info("Published the alphabet message : {} ", recordMetaData);
+                });
     }
 
 

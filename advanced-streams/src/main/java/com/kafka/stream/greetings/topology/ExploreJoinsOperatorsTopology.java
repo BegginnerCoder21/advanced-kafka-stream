@@ -6,7 +6,11 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 
+import java.time.Duration;
+
 public class ExploreJoinsOperatorsTopology {
+
+    private ExploreJoinsOperatorsTopology(){}
 
     public static final String ALPHABETS = "alphabets";
     public static final String ALPHABETS_ABBREVATIONS = "alphabets_abbreviation";
@@ -15,9 +19,44 @@ public class ExploreJoinsOperatorsTopology {
         StreamsBuilder streamsBuilder = new StreamsBuilder();
 
         //joinKStreamWithKTable(streamsBuilder);
-        joinKStreamWithGlobalKTable(streamsBuilder);
+        //joinKStreamWithGlobalKTable(streamsBuilder);
+        //joinKTableWithKTable(streamsBuilder);
+        joinKStreamWithKStream(streamsBuilder);
 
         return streamsBuilder.build();
+    }
+
+    private static void joinKStreamWithKStream(StreamsBuilder streamsBuilder){
+
+        KStream<String, String> alphabetsAbbreviation = streamsBuilder
+                .stream(ALPHABETS_ABBREVATIONS,
+                        Consumed.with(Serdes.String(), Serdes.String()));
+
+        alphabetsAbbreviation
+                .print(Printed.<String, String>toSysOut()
+                        .withLabel(ALPHABETS_ABBREVATIONS));
+
+        KStream<String, String> alphabetsKStream = streamsBuilder
+                .stream(ALPHABETS,
+                        Consumed.with(Serdes.String(), Serdes.String()));
+
+        alphabetsKStream
+                .print(Printed.<String, String>toSysOut()
+                        .withLabel(ALPHABETS));
+
+        ValueJoiner<String, String, Alphabet> valueJoiner = Alphabet::new;
+
+        JoinWindows fiveJoinWindows = JoinWindows.ofTimeDifferenceWithNoGrace(Duration.ofSeconds(5));
+
+        StreamJoined<String, String, String> streamJoined = StreamJoined.with(Serdes.String(), Serdes.String(), Serdes.String());
+
+        KStream<String, Alphabet> joinStream = alphabetsAbbreviation
+                .outerJoin(alphabetsKStream, valueJoiner, fiveJoinWindows, streamJoined);
+
+        joinStream
+                .print(Printed.<String, Alphabet>toSysOut()
+                        .withLabel("alphabets-alphabets_abbreviation"));
+
     }
 
     private static void joinKStreamWithKTable(StreamsBuilder streamsBuilder) {
@@ -45,6 +84,39 @@ public class ExploreJoinsOperatorsTopology {
 
     }
 
+    private static void joinKTableWithKTable(StreamsBuilder streamsBuilder) {
+
+        KTable<String, String> alphabetsAbbreviation = streamsBuilder
+                .table(ALPHABETS_ABBREVATIONS,
+                        Consumed.with(Serdes.String(), Serdes.String()),
+                        Materialized.as(ALPHABETS_ABBREVATIONS + "-store"));
+
+        alphabetsAbbreviation
+                .toStream()
+                .print(Printed.<String, String>toSysOut()
+                        .withLabel(ALPHABETS_ABBREVATIONS));
+
+        KTable<String, String> alphabetsTable = streamsBuilder
+                .table(ALPHABETS,
+                        Consumed.with(Serdes.String(), Serdes.String()),
+                        Materialized.as(ALPHABETS + "-store"));
+
+        alphabetsAbbreviation
+                .toStream()
+                .print(Printed.<String, String>toSysOut()
+                        .withLabel(ALPHABETS));
+
+        ValueJoiner<String, String, Alphabet> valueJoiner = Alphabet::new;
+
+        KTable<String, Alphabet> joinResult = alphabetsAbbreviation.join(alphabetsTable, valueJoiner);
+
+        joinResult
+                .toStream()
+                .print(Printed.<String, Alphabet>toSysOut()
+                        .withLabel("alphabets-with-abbreviations"));
+
+    }
+
     private static void joinKStreamWithGlobalKTable(StreamsBuilder streamsBuilder) {
 
         KStream<String, String> alphabetsAbbreviation = streamsBuilder
@@ -58,7 +130,7 @@ public class ExploreJoinsOperatorsTopology {
         GlobalKTable<String, String> alphabetsGlobalKTable = streamsBuilder
                 .globalTable(ALPHABETS,
                         Consumed.with(Serdes.String(), Serdes.String()),
-                        Materialized.as(ALPHABETS_ABBREVATIONS));
+                        Materialized.as(ALPHABETS + "-store"));
 
         ValueJoiner<String, String, Alphabet> valueJoiner = Alphabet::new;
 
